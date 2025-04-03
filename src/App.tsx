@@ -1,25 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import CssBaseline from "@mui/material/CssBaseline";
+import { Box, Snackbar } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "./store";
+import { isEmpty } from "lodash";
+import { hideSnackbar } from "./store/actions";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { lazy, Suspense } from "react";
+
+const PromptForm = lazy(() => import("./components/PromptForm"));
+const UploadFileForm = lazy(() => import("./components/UploadFileForm"));
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 function App() {
+  const openSnackbar = useSelector(
+    (state: RootState) => state.showSnackbar.snackbarMessage
+  );
+
+  const onClose = () => {
+    hideSnackbar();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Suspense fallback={"Loading..."}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: "100vh",
+            gap: 2,
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <UploadFileForm />
+          <PromptForm />
+          <Snackbar
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            open={!isEmpty(openSnackbar)}
+            autoHideDuration={5000}
+            onClose={onClose}
+            message={openSnackbar}
+          />
+        </Box>
+      </Suspense>
+    </ThemeProvider>
   );
 }
 
